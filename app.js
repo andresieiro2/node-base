@@ -1,15 +1,15 @@
+import config from './config.json';
 import Koa from 'koa';
 import cors from '@koa/cors';
-
 import router from './app/routes';
 import DB from './app/db';
 
 const app = new Koa();
 
 DB({
-  user: "mooven",
-  password: "mooven",
-  db: "mooven"
+  db: config.DB.dbname,
+  user: config.DB.user,
+  password: config.DB.password,
 });
 
 app.use(cors());
