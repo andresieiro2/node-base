@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import UserModel from './UserModel';
 
-const BD = (params) => {
-  mongoose.connect(`mongodb://${params.user}:${params.password}@localhost/${params.db}'` , { useMongoClient: true } );
+export default class InitModels {
+  static init() {
+    new UserModel();
+  }
 }
-
-export default BD;
