@@ -57,11 +57,7 @@ export default class BaseModel {
     } : null
 
     const result = await this.model.find(searchParams);
-    
+
     return result[0]
-  }
-
-  async update(params) {
-
   }
 }
