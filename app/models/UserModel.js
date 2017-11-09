@@ -2,7 +2,8 @@ import BaseModel from './BaseModel';
 
 class User extends BaseModel {
   constructor() {
-    super(User);
+    super();
+    this.modelClass = User;
   }
 
   customModelMethod() {
