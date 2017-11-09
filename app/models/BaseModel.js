@@ -15,10 +15,17 @@ export default class BaseModel {
 
   setSchema() {
     const methods = Object.getOwnPropertyNames(this.modelClass.prototype).filter(x => x !== 'constructor')
-    this.modelSchema = new Schema({
-      id: Schema.ObjectId,
-      ...this.modelClass.fields
-    });
+    this.modelSchema = new Schema(
+      {
+        id: Schema.ObjectId,
+        status: {
+          type: Number,
+          default: 1,
+        },
+        ...this.modelClass.fields
+      },
+      { timestamps: true  },
+    );
 
     for (var i = 0 ; i < methods.length ; i++ ) {
       this.modelSchema.statics[methods[i]] = this.modelClass.prototype[methods[i]];
