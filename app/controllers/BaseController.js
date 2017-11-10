@@ -12,22 +12,31 @@ class BaseController {
   constructor(router, prefix){
     this.prefix = prefix;
 
+    router.get(prefix , this.getAll.bind(this) );
     router.get(prefix+"/:id" , this.getById.bind(this) );
     router.post(prefix , koaBody(), this.create.bind(this) );
     router.put(prefix , koaBody(), this.update.bind(this) );
     router.del(prefix+"/:id" , this.delete.bind(this) );
   }
 
+  async getAll(ctx, next) {
+    const result = await this.model.listAll()
+    .then( docs => {
+
+      ctx.status = 200;
+      ctx.body = docs;
+    })
+    .catch( err => {
+      ctx.status = 400;
+      ctx.body = err;
+    });
+  }
+
   async getById(ctx, next) {
     const result = await this.model.findById(ctx.params.id, { status: 1 })
     .then( doc => {
-      if(doc) {
-        ctx.status = 200;
-        ctx.body = doc;
-      } else {
-        ctx.status = 400;
-        ctx.body = "No records found";
-      }
+      ctx.status = 200;
+      ctx.body = doc;
     })
     .catch( err => {
       ctx.status = 400;
@@ -77,6 +86,7 @@ class BaseController {
 
   async _updateDoc(ctx, doc, params) {
     if(doc){
+      params.updatedAt = Date.now();
       doc.set(params)
 
       const result = await doc.save()

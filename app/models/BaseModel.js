@@ -3,11 +3,6 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 export default class BaseModel {
-  static prefixModel = "";
-
-  constructor() {
-    this.findById = this.findById.bind(this);
-  }
 
   get model() {
     return mongoose.model(this.modelClass.name);
@@ -39,7 +34,8 @@ export default class BaseModel {
       this.schema.statics[methods[i]] = this.modelClass.prototype[methods[i]];
     }
 
-    this.schema.statics.findById = this.findById;
+    this.schema.statics.findById = this.findById.bind(this);
+    this.schema.statics.listAll = this.listAll.bind(this);
 
     mongoose.model(this.modelClass.name, this.schema);
 
@@ -59,5 +55,11 @@ export default class BaseModel {
     const result = await this.model.find(searchParams);
 
     return result[0]
+  }
+
+  async listAll(){
+    return await this.model.find({
+      status: 1,
+    })
   }
 }

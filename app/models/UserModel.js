@@ -33,7 +33,10 @@ User.fields = {
     type: Number,
     default: 1
   },
-  token: String,
+  token: {
+    type: String,
+    default: "",
+  },
 }
 
 export default User ;
