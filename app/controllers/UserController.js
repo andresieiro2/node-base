@@ -4,7 +4,7 @@ import BaseController from './BaseController';
 class UserController extends BaseController {
 
   constructor(router){
-    super(router, '/user', 'User' );
+    super(router, '/user' );
     this.modelName = 'User';
 
     this.createRoute('/login', 'POST', this.login);
