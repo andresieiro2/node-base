@@ -13,6 +13,7 @@ DB({
 });
 
 app.use(cors());
+app.use(router.middleware());
 app.use(router.routes());
 app.use(router.allowedMethods());
 

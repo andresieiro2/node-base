@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import BaseController from './BaseController';
+import auth from './../middlewares/auth';
 import randtoken from 'rand-token';
 
 class UserController extends BaseController {
@@ -8,11 +9,17 @@ class UserController extends BaseController {
     super(router, '/user' );
     this.modelName = 'User';
 
-    this.createRoute('/login', 'POST', this.login);
-  }
+    this.setMiddlewares([
+      {
+        path: '/',
+        method: 'POST',
+        middleware: auth
+      }
+    ]);
 
-  async create(ctx, next) {
-    ctx.status = 405;
+    this.createDefaultRoutes();
+
+    this.createRoute('/login', 'POST', this.login);
   }
 
   async login(ctx, next) {

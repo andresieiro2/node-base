@@ -17,7 +17,7 @@ User.fields = {
   email: {
     type: String,
     min: [7, 'Minimo de caracteres 3'],
-    required: [true, 'Email é obrigatório']
+    required: [true, 'Email é obrigatório'],
   },
   password: {
     type: String,

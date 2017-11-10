@@ -13,6 +13,19 @@ class BaseController {
     this.prefix = prefix;
     this.router = router;
 
+    this.setMiddlewares = this.setMiddlewares.bind(this);
+    this.createDefaultRoutes = this.createDefaultRoutes.bind(this);
+  }
+
+
+  setMiddlewares(middlewares) {
+    for (let i in middlewares) {
+      let m = middlewares[i];
+      this.setRouteMethod(m.method, this.prefix + m.path, m.middleware)
+    }
+  }
+
+  createDefaultRoutes() {
     this.createRoute("/", "GET", this.getAll );
     this.createRoute("/:id", "GET", this.getById );
     this.createRoute("/", "POST", this.create );
@@ -21,19 +34,36 @@ class BaseController {
   }
 
   createRoute(route, method, cb) {
+    route = this.prefix + route;
+
     switch (method.toUpperCase()) {
       case "GET":
-        this.router.get(this.prefix + route, cb.bind(this));
+      case "DEL":
+      case "DELETE":
+        this.setRouteMethod(method, route, cb.bind(this));
       break;
       case "POST":
-        this.router.post(this.prefix + route, koaBody() , cb.bind(this));
+      case "PUT":
+        this.setRouteMethod(method , route, koaBody() , cb.bind(this) );
+      break;
+     default:
+    }
+  }
+
+  setRouteMethod(method, ...params) {
+    switch (method.toUpperCase()) {
+      case "GET":
+        this.router.get(...params);
+      break;
+      case "POST":
+        this.router.post(...params);
       break;
       case "DEL":
       case "DELETE":
-        this.router.del(this.prefix + route, cb.bind(this));
+        this.router.del(...params);
       break;
       case "PUT":
-        this.router.put(this.prefix + route, koaBody() , cb.bind(this));
+        this.router.put(...params);
       break;
      default:
     }
@@ -65,7 +95,6 @@ class BaseController {
   }
 
   async create(ctx, next) {
-    console.log('base');
     let result =  new this.model({
       ...ctx.request.body
     })
