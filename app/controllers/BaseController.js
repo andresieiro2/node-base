@@ -65,6 +65,7 @@ class BaseController {
   }
 
   async create(ctx, next) {
+    console.log('base');
     let result =  new this.model({
       ...ctx.request.body
     })
@@ -83,7 +84,7 @@ class BaseController {
   async update(ctx) {
     const resultfind = await this.model.findById(ctx.request.body.id)
     .then( async doc => {
-      const update = await this._updateDoc(ctx, doc, ctx.request.body);
+      const update = await this.updateDoc(ctx, doc, ctx.request.body);
     })
     .catch( err => {
       ctx.status = 400;
@@ -95,7 +96,7 @@ class BaseController {
   async delete(ctx) {
     const resultfind = await this.model.findById(ctx.params.id)
     .then( async doc => {
-      const update = await this._updateDoc(ctx, doc, { status: 2 });
+      const update = await this.updateDoc(ctx, doc, { status: 2 });
     })
     .catch( err => {
       ctx.status = 400;
@@ -103,10 +104,10 @@ class BaseController {
     });
   }
 
-  async _updateDoc(ctx, doc, params) {
+  async updateDoc(ctx, doc, docparams) {
     if(doc){
-      params.updatedAt = Date.now();
-      doc.set(params)
+      docparams.updatedAt = Date.now();
+      doc.set(docparams)
 
       const result = await doc.save()
       .then( result => {
@@ -118,8 +119,7 @@ class BaseController {
         ctx.body = JSON.stringify(err);
       })
     } else {
-      ctx.status = 400;
-      ctx.body = "No records found";
+      ctx.status = 204;
     }
 
   }

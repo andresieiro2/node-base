@@ -23,7 +23,8 @@ User.fields = {
     type: String,
     min: [3, 'Minimo de caracteres 3'],
     max: [12, 'Maximo de caracteres 12'],
-    required: [true, 'Senha é obrigatório']
+    required: [true, 'Senha é obrigatório'],
+    select: false,
   },
   role: {
     type: Number,
