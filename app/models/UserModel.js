@@ -5,10 +5,6 @@ class User extends BaseModel {
     super();
     this.modelClass = User;
   }
-
-  customModelMethod() {
-    console.log("Custom Method on Model");
-  }
 }
 
 User.fields = {

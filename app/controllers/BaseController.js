@@ -11,18 +11,37 @@ class BaseController {
 
   constructor(router, prefix){
     this.prefix = prefix;
+    this.router = router;
 
-    router.get(prefix , this.getAll.bind(this) );
-    router.get(prefix+"/:id" , this.getById.bind(this) );
-    router.post(prefix , koaBody(), this.create.bind(this) );
-    router.put(prefix , koaBody(), this.update.bind(this) );
-    router.del(prefix+"/:id" , this.delete.bind(this) );
+    this.createRoute("/", "GET", this.getAll );
+    this.createRoute("/:id", "GET", this.getById );
+    this.createRoute("/", "POST", this.create );
+    this.createRoute("/", "PUT", this.update );
+    this.createRoute("/:id", "DELETE", this.delete );
+  }
+
+  createRoute(route, method, cb) {
+    switch (method.toUpperCase()) {
+      case "GET":
+        this.router.get(this.prefix + route, cb.bind(this));
+      break;
+      case "POST":
+        this.router.post(this.prefix + route, koaBody() , cb.bind(this));
+      break;
+      case "DEL":
+      case "DELETE":
+        this.router.del(this.prefix + route, cb.bind(this));
+      break;
+      case "PUT":
+        this.router.put(this.prefix + route, koaBody() , cb.bind(this));
+      break;
+     default:
+    }
   }
 
   async getAll(ctx, next) {
     const result = await this.model.listAll()
     .then( docs => {
-
       ctx.status = 200;
       ctx.body = docs;
     })
