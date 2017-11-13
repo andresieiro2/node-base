@@ -9,7 +9,15 @@ class UserController extends BaseController {
     super(router, '/user' );
     this.modelName = 'User';
 
-    this.createDefaultRoutes(auth);
+    this.createDefaultRoutes(
+      //set authorization middleware
+      auth,
+      //disable some routes
+      [
+        { route: '/', method: 'POST' },
+        { route: '/:id', method: 'DELETE' }
+      ]
+    );
 
     this.createRoute('/login', 'POST', auth, this.login);
   }
