@@ -9,17 +9,9 @@ class UserController extends BaseController {
     super(router, '/user' );
     this.modelName = 'User';
 
-    this.setMiddlewares([
-      {
-        path: '/',
-        method: 'POST',
-        middleware: auth
-      }
-    ]);
+    this.createDefaultRoutes(auth);
 
-    this.createDefaultRoutes();
-
-    this.createRoute('/login', 'POST', this.login);
+    this.createRoute('/login', 'POST', auth, this.login);
   }
 
   async login(ctx, next) {

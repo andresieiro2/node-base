@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import koaBody from 'koa-body';
+import _ from 'lodash';
 
 class BaseController {
   static prefix = "/";
@@ -12,39 +13,47 @@ class BaseController {
   constructor(router, prefix){
     this.prefix = prefix;
     this.router = router;
-
-    this.setMiddlewares = this.setMiddlewares.bind(this);
     this.createDefaultRoutes = this.createDefaultRoutes.bind(this);
   }
 
+  createDefaultRoutes(auth = (ctx, next) => { next(); }, disabledRoutes = []) {
+    const defaultRoutes = [
+      { route:'/', method: "GET", cb: this.getAll },
+      { route:'/:id', method: "GET", cb: this.getById   },
+      { route:'/', method: "POST", cb: this.create },
+      { route:'/', method: "PUT", cb: this.update  },
+      { route:'/:id', method: "DELETE", cb: this.delete }
+    ];
 
-  setMiddlewares(middlewares) {
-    for (let i in middlewares) {
-      let m = middlewares[i];
-      this.setRouteMethod(m.method, this.prefix + m.path, m.middleware)
+    const routes = _.pullAllWith(defaultRoutes, disabledRoutes, (r,rr) => {
+      return r.route === rr.route && r.method.toUpperCase() === rr.method.toUpperCase();
+    });
+
+    for (var i = 0; i < routes.length; i++) {
+      let route = routes[i];
+      this.createRoute(route.route, route.method, auth, route.cb);
     }
+
   }
 
-  createDefaultRoutes() {
-    this.createRoute("/", "GET", this.getAll );
-    this.createRoute("/:id", "GET", this.getById );
-    this.createRoute("/", "POST", this.create );
-    this.createRoute("/", "PUT", this.update );
-    this.createRoute("/:id", "DELETE", this.delete );
-  }
-
-  createRoute(route, method, cb) {
+  createRoute(route, method, ...params) {
     route = this.prefix + route;
+
+    for (let index in params) {
+     if(typeof params[index] === 'function' ){
+       params[index] = params[index].bind(this);
+     };
+    }
 
     switch (method.toUpperCase()) {
       case "GET":
       case "DEL":
       case "DELETE":
-        this.setRouteMethod(method, route, cb.bind(this));
+        this.setRouteMethod(method, route, ...params);
       break;
       case "POST":
       case "PUT":
-        this.setRouteMethod(method , route, koaBody() , cb.bind(this) );
+        this.setRouteMethod(method , route, koaBody() , ...params );
       break;
      default:
     }
