@@ -16,7 +16,7 @@ class BaseController {
     this.createDefaultRoutes = this.createDefaultRoutes.bind(this);
   }
 
-  createDefaultRoutes(auth = (ctx, next) => { next(); }, disabledRoutes = []) {
+  createDefaultRoutes(middleware, disabledRoutes = []) {
     const defaultRoutes = [
       { route:'/', method: "GET", cb: this.getAll },
       { route:'/:id', method: "GET", cb: this.getById   },
@@ -31,7 +31,11 @@ class BaseController {
 
     for (var i = 0; i < routes.length; i++) {
       let route = routes[i];
-      this.createRoute(route.route, route.method, auth, route.cb);
+      if(middleware){
+        this.createRoute(route.route, route.method, middleware, route.cb);
+      } else {
+        this.createRoute(route.route, route.method, route.cb);
+      }
     }
 
   }

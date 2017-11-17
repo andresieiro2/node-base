@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "babel-node": "babel-node app.js",
-    "start": "nodemon --exec npm run babel-node"
+    "start": "nodemon --exec npm run babel-node",
+    "seed": "babel-node seed.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +18,7 @@
     "koa-router": "^7.2.1",
     "lodash": "^4.17.4",
     "mongoose": "^4.13.0",
+    "mongoose-autopopulate": "^0.6.0",
     "rand-token": "^0.4.0"
   },
   "devDependencies": {

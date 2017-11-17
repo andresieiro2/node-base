@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import autopopulate from 'mongoose-autopopulate';
 
 const Schema = mongoose.Schema;
 
@@ -37,6 +38,8 @@ export default class BaseModel {
     this.schema.statics.findById = this.findById.bind(this);
     this.schema.statics.listAll = this.listAll.bind(this);
 
+    this.schema.plugin(autopopulate);
+
     mongoose.model(this.modelClass.name, this.schema);
 
   }
@@ -60,6 +63,6 @@ export default class BaseModel {
   async listAll(){
     return await this.model.find({
       status: 1,
-    })
+    });
   }
 }
