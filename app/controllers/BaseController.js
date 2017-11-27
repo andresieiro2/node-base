@@ -20,7 +20,6 @@ class BaseController {
   createDefaultRoutes(disabledRoutes = []) {
     const defaultRoutes = [
       { route:'/', method: "GET", cb: this.getAll },
-      { route:'/page/:page', method: "GET", cb: this.getPagination },
       { route:'/:id', method: "GET", cb: this.getById   },
       { route:'/', method: "POST", cb: this.create },
       { route:'/', method: "PUT", cb: this.update  },
@@ -80,7 +79,7 @@ class BaseController {
   }
 
   async getAll(ctx, next) {
-    const result = await this.model.listAll()
+    const result = await this.model.list(ctx.query)
     .then( docs => {
       ctx.status = 200;
       ctx.body = docs;
@@ -89,19 +88,6 @@ class BaseController {
       ctx.status = 400;
       ctx.body = err;
     });
-  }
-
-  async getPagination(ctx, next) {
-    const result = await this.model.findByPage(ctx.params)
-    .then( doc => {
-      ctx.status = 200;
-      ctx.body = doc;
-    })
-    .catch( err => {
-      ctx.status = 400;
-      ctx.body = err;
-    });
-
   }
 
   async getById(ctx, next) {

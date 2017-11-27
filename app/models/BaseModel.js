@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import autopopulate from 'mongoose-autopopulate';
+import mongoosePaginate from 'mongoose-paginate';
 
 const Schema = mongoose.Schema;
 
@@ -37,10 +38,10 @@ export default class BaseModel {
     }
 
     this.schema.statics.findById = this.findById.bind(this);
-    this.schema.statics.listAll = this.listAll.bind(this);
-    this.schema.statics.findByPage = this.findByPage.bind(this);
+    this.schema.statics.list = this.list.bind(this);
 
     this.schema.plugin(autopopulate);
+    this.schema.plugin(mongoosePaginate);
 
     mongoose.model(this.modelClass.name, this.schema);
 
@@ -55,24 +56,22 @@ export default class BaseModel {
 
     const result = await this.model.find(searchParams);
 
-    return result[0]
+    return result[0];
   }
 
-  async listAll(){
-    return await this.model.find({
-      status: 1,
-    });
-  }
-
-  async findByPage(params){
-    if(!params.limit){
-      params.limit = 10;
+  async list(params){
+    const pagination = {};
+    const searchParams = {
+      ...params
     }
 
-    return await this.model.find({
-      status: 1,
-    })
-    .limit(params.limit)
-    .skip( (params.page - 1) * params.limit);
+    pagination.limit =   params.limit ? parseInt(params.limit) : -1 ;
+    pagination.page = params.page ? parseInt(params.page) : 1;
+
+    delete searchParams.limit;
+    delete searchParams.page;
+
+    return await this.model.paginate(searchParams , pagination );
   }
+
 }
