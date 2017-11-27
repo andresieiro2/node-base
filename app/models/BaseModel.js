@@ -25,6 +25,7 @@ export default class BaseModel {
         status: {
           type: Number,
           default: 1,
+          required: [true, 'Status é obrigatório'],
         },
         ...this.modelClass.fields
       },
@@ -37,6 +38,7 @@ export default class BaseModel {
 
     this.schema.statics.findById = this.findById.bind(this);
     this.schema.statics.listAll = this.listAll.bind(this);
+    this.schema.statics.findByPage = this.findByPage.bind(this);
 
     this.schema.plugin(autopopulate);
 
@@ -44,16 +46,12 @@ export default class BaseModel {
 
   }
 
-  async findById(id, params) {
+  async findById(id, params = {}) {
 
     let searchParams = {
-      _id: id
+      _id: id,
+      ...params
     }
-
-    params ? searchParams = {
-      ...searchParams,
-      ...params,
-    } : null
 
     const result = await this.model.find(searchParams);
 
@@ -64,5 +62,17 @@ export default class BaseModel {
     return await this.model.find({
       status: 1,
     });
+  }
+
+  async findByPage(params){
+    if(!params.limit){
+      params.limit = 10;
+    }
+
+    return await this.model.find({
+      status: 1,
+    })
+    .limit(params.limit)
+    .skip( (params.page - 1) * params.limit);
   }
 }

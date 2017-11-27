@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import koaBody from 'koa-body';
+import config from './../../config.json';
 import _ from 'lodash';
 
 class BaseController {
@@ -16,9 +17,10 @@ class BaseController {
     this.createDefaultRoutes = this.createDefaultRoutes.bind(this);
   }
 
-  createDefaultRoutes(middleware, disabledRoutes = []) {
+  createDefaultRoutes(disabledRoutes = []) {
     const defaultRoutes = [
       { route:'/', method: "GET", cb: this.getAll },
+      { route:'/page/:page', method: "GET", cb: this.getPagination },
       { route:'/:id', method: "GET", cb: this.getById   },
       { route:'/', method: "POST", cb: this.create },
       { route:'/', method: "PUT", cb: this.update  },
@@ -31,18 +33,13 @@ class BaseController {
 
     for (var i = 0; i < routes.length; i++) {
       let route = routes[i];
-      if(middleware){
-        this.createRoute(route.route, route.method, middleware, route.cb);
-      } else {
-        this.createRoute(route.route, route.method, route.cb);
-      }
+      this.createRoute(route.route, route.method, route.cb);
     }
 
   }
 
   createRoute(route, method, ...params) {
-    route = this.prefix + route;
-
+    route = `/${config.api.version}${this.prefix}${route}`;
     for (let index in params) {
      if(typeof params[index] === 'function' ){
        params[index] = params[index].bind(this);
@@ -94,8 +91,21 @@ class BaseController {
     });
   }
 
+  async getPagination(ctx, next) {
+    const result = await this.model.findByPage(ctx.params)
+    .then( doc => {
+      ctx.status = 200;
+      ctx.body = doc;
+    })
+    .catch( err => {
+      ctx.status = 400;
+      ctx.body = err;
+    });
+
+  }
+
   async getById(ctx, next) {
-    const result = await this.model.findById(ctx.params.id, { status: 1 })
+    const result = await this.model.findById(ctx.params.id)
     .then( doc => {
       ctx.status = 200;
       ctx.body = doc;
@@ -118,6 +128,7 @@ class BaseController {
       ctx.body = JSON.stringify(doc);
     })
     .catch( err => {
+      console.log(err);
       ctx.status = 400;
       ctx.body = JSON.stringify(err);
     })

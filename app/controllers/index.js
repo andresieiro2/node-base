@@ -1,11 +1,7 @@
-import UserController from './UserController';
-import ServiceController from './ServiceController';
-import FilterController from './FilterController';
+//import UserController from './UserController';
 
 export default class InitControllers {
   static init(router) {
-    new UserController(router);
-    new ServiceController(router);
-    new FilterController(router);
+    //new UserController(router);
   }
 }

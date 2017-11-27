@@ -3,5 +3,8 @@
     "dbname": "mooven",
     "user": "mooven",
     "password": "mooven"
+  },
+  "api": {
+    "version": "v1"
   }
 }
