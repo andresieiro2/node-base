@@ -1,7 +1,16 @@
-//import UserController from './UserController';
-
-export default class InitControllers {
-  static init(router) {
-    //new UserController(router);
-  }
-}
+import AthleteController from './AthleteController';
+import AthleteTypeController from './AthleteTypeController';
+import CategoryController from './CategoryController';
+import CircuitController from './CircuitController';
+import CityController from './CityController';
+import EventTypeController from './EventTypeController';
+import HeatController from './HeatController';
+import HeatTypeController from './HeatTypeController';
+import SponsorController from './SponsorController';
+import StageController from './StageController';
+import StyleController from './StyleController';
+import StateController from './StateController';
+import TeamController from './TeamController';
+import UploadsController from './UploadsController';
+import UploadErrorsController from './UploadErrorsController';
+import UserController from './UserController';

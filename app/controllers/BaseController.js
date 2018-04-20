@@ -1,9 +1,8 @@
 import mongoose from 'mongoose';
 import koaBody from 'koa-body';
-import config from './../../config.json';
-import _ from 'lodash';
+import router from './../routes';
 
-class BaseController {
+export default class BaseController {
   static prefix = "/";
   static modelName = "noModel" ;
 
@@ -11,13 +10,12 @@ class BaseController {
     return mongoose.model(this.modelName);
   }
 
-  constructor(router, prefix){
+  constructor(prefix){
     this.prefix = prefix;
-    this.router = router;
     this.createDefaultRoutes = this.createDefaultRoutes.bind(this);
   }
 
-  createDefaultRoutes(disabledRoutes = []) {
+  createDefaultRoutes(middleware = null, disabledRoutes = []) {
     const defaultRoutes = [
       { route:'/', method: "GET", cb: this.getAll },
       { route:'/:id', method: "GET", cb: this.getById   },
@@ -32,13 +30,19 @@ class BaseController {
 
     for (var i = 0; i < routes.length; i++) {
       let route = routes[i];
-      this.createRoute(route.route, route.method, route.cb);
+
+      if(middleware){
+        this.createRoute(route.route, route.method, middleware, route.cb);
+      } else {
+        this.createRoute(route.route, route.method, route.cb);
+      }
     }
 
   }
 
   createRoute(route, method, ...params) {
-    route = `/${config.api.version}${this.prefix}${route}`;
+    route = this.prefix + route;
+
     for (let index in params) {
      if(typeof params[index] === 'function' ){
        params[index] = params[index].bind(this);
@@ -53,7 +57,10 @@ class BaseController {
       break;
       case "POST":
       case "PUT":
-        this.setRouteMethod(method , route, koaBody() , ...params );
+        this.setRouteMethod(method, route, koaBody() , ...params );
+      break;
+      case "UPLOAD":
+        this.setRouteMethod('POST', route, koaBody({ multipart: true }) , ...params );
       break;
      default:
     }
@@ -62,41 +69,43 @@ class BaseController {
   setRouteMethod(method, ...params) {
     switch (method.toUpperCase()) {
       case "GET":
-        this.router.get(...params);
+        router.get(...params);
       break;
       case "POST":
-        this.router.post(...params);
+        router.post(...params);
       break;
       case "DEL":
       case "DELETE":
-        this.router.del(...params);
+        router.del(...params);
       break;
       case "PUT":
-        this.router.put(...params);
+        router.put(...params);
       break;
      default:
     }
   }
 
   async getAll(ctx, next) {
-    const result = await this.model.list(ctx.query)
+    const result = await this.model.listAll()
     .then( docs => {
       ctx.status = 200;
       ctx.body = docs;
     })
     .catch( err => {
+      console.log(400, JSON.stringify(err));
       ctx.status = 400;
       ctx.body = err;
     });
   }
 
   async getById(ctx, next) {
-    const result = await this.model.findById(ctx.params.id)
+    const result = await this.model.findById(ctx.params.id, { status: 1 })
     .then( doc => {
       ctx.status = 200;
       ctx.body = doc;
     })
     .catch( err => {
+      console.log(400, JSON.stringify(err));
       ctx.status = 400;
       ctx.body = err;
     });
@@ -104,38 +113,41 @@ class BaseController {
   }
 
   async create(ctx, next) {
-    let result =  new this.model({
-      ...ctx.request.body
-    })
-
-    result = await result.save()
+    await this.model.create(ctx.request.body)
     .then( doc => {
       ctx.status = 200;
       ctx.body = JSON.stringify(doc);
     })
     .catch( err => {
-      console.log(err);
+      console.log(400, JSON.stringify(err));
       ctx.status = 400;
       ctx.body = JSON.stringify(err);
     })
   }
 
   async update(ctx) {
-    const resultfind = await this.model.findById(ctx.request.body.id)
-    .then( async doc => {
-      const update = await this.updateDoc(ctx, doc, ctx.request.body);
+    await this.model.update(
+      { _id: ctx.request.body.id },
+      {...ctx.request.body}
+    )
+    .then( doc => {
+      ctx.status = 200;
+      ctx.body = JSON.stringify(doc);
     })
     .catch( err => {
       ctx.status = 400;
       ctx.body = JSON.stringify(err);
     });
-
   }
 
   async delete(ctx) {
-    const resultfind = await this.model.findById(ctx.params.id)
-    .then( async doc => {
-      const update = await this.updateDoc(ctx, doc, { status: 2 });
+    await this.model.update(
+      { _id: ctx.request.body.id },
+      { status: 2 }
+    )
+    .then( doc => {
+      ctx.status = 200;
+      ctx.body = JSON.stringify(doc);
     })
     .catch( err => {
       ctx.status = 400;
@@ -143,26 +155,4 @@ class BaseController {
     });
   }
 
-  async updateDoc(ctx, doc, docparams) {
-    if(doc){
-      docparams.updatedAt = Date.now();
-      doc.set(docparams)
-
-      const result = await doc.save()
-      .then( result => {
-        ctx.status = 200;
-        ctx.body = JSON.stringify(result);
-      })
-      .catch( err => {
-        ctx.status = 400;
-        ctx.body = JSON.stringify(err);
-      })
-    } else {
-      ctx.status = 204;
-    }
-
-  }
-
-}
-
-export default BaseController;
+};

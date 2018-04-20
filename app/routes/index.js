@@ -1,10 +1,21 @@
 import KoaRouter from 'koa-router';
-import koaBody from 'koa-body';
 
-import Controllers from './../controllers';
+const SingletonRouter = (function () {
+    let instance;
 
-const router = new KoaRouter();
+    function createInstance() {
+        return new KoaRouter();
+    }
 
-Controllers.init(router);
+    return {
+        getInstance: function () {
+            if (!instance) {
+                instance = createInstance();
+            }
+            return instance;
+        }
+    };
+})();
 
-export default router;
+
+export default SingletonRouter.getInstance();

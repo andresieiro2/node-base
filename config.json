@@ -1,8 +1,9 @@
 {
   "DB": {
-    "dbname": "mooven",
-    "user": "mooven",
-    "password": "mooven"
+    "host": "localhost",
+    "dbname": "db",
+    "user": "root",
+    "password": "root"
   },
   "api": {
     "version": "v1"

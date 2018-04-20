@@ -1,7 +1,15 @@
-//import UserModel from './User';
-
-export default class InitModels {
-  static init() {
-    //new UserModel();
-  }
-}
+import AthleteModel from './Athlete';
+import AthleteTypeModel from './AthleteType';
+import CategoryModel from './Category';
+import CircuitModel from './Circuit';
+import CityModel from './City';
+import EventTypeModel from './EventType';
+import HeatModel from './Heat';
+import HeatTypeModel from './HeatType';
+import SponsorModel from './Sponsor';
+import StageModel from './Stage';
+import StyleModel from './Style';
+import StateModel from './State';
+import TeamModel from './Team';
+import UploadErrorsModel from './UploadError';
+import UserModel from './User';

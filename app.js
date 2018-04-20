@@ -3,6 +3,8 @@ import Koa from 'koa';
 import cors from '@koa/cors';
 import router from './app/routes';
 import DB from './app/db';
+import './app/controllers';
+import './app/models';
 
 const app = new Koa();
 
@@ -10,6 +12,7 @@ DB({
   db: config.DB.dbname,
   user: config.DB.user,
   password: config.DB.password,
+  host: config.DB.host,
 });
 
 app.use(cors());
